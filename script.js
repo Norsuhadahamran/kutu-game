@@ -30,15 +30,15 @@ let dates = [
   "30 November"
 ];
 
-let remainingDates = shuffle([...dates]);
+let remainingDates = [...dates];
 let selectedPlayers = [];
 let results = [];
-let spinning = false;
 let angle = 0;
 
 const nameInput = document.getElementById("nameInput");
 const wheel = document.getElementById("wheel");
 const ctx = wheel.getContext("2d");
+const drawBtn = document.getElementById("drawBtn");
 
 const colors = [
   "#ff6384", "#36a2eb", "#ffce56", "#4bc0c0",
@@ -47,22 +47,26 @@ const colors = [
 ];
 
 function loadDropdown() {
+  nameInput.innerHTML = `<option value="">-- PILIH NAMA --</option>`;
+
   participants.forEach(name => {
-    const option = document.createElement("option");
-    option.value = name;
-    option.textContent = name;
-    nameInput.appendChild(option);
+    if (!selectedPlayers.includes(name)) {
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      nameInput.appendChild(option);
+    }
   });
 }
 
 function drawWheel() {
-  const slice = (2 * Math.PI) / dates.length;
+  const slice = (2 * Math.PI) / remainingDates.length;
   const center = wheel.width / 2;
   const radius = 170;
 
   ctx.clearRect(0, 0, wheel.width, wheel.height);
 
-  dates.forEach((date, i) => {
+  remainingDates.forEach((date, i) => {
     const start = angle + i * slice;
     const end = start + slice;
 
@@ -98,12 +102,12 @@ function drawWheel() {
 
 function cabutUndian() {
   const playerName = nameInput.value;
+
   const winnerBox = document.getElementById("winnerBox");
   const winnerName = document.getElementById("winnerName");
   const winnerDate = document.getElementById("winnerDate");
   const loading = document.getElementById("loading");
   const suspenseText = document.getElementById("suspenseText");
-  const drawBtn = document.getElementById("drawBtn");
 
   if (playerName === "") {
     alert("Sila pilih nama dahulu.");
@@ -120,7 +124,6 @@ function cabutUndian() {
     return;
   }
 
-  spinning = true;
   drawBtn.disabled = true;
   winnerBox.classList.add("hidden");
   loading.classList.remove("hidden");
@@ -129,13 +132,19 @@ function cabutUndian() {
   spinSound.currentTime = 0;
   spinSound.play();
 
+  const selectedIndex = Math.floor(Math.random() * remainingDates.length);
+  const selectedDate = remainingDates[selectedIndex];
+
   let suspenseInterval = setInterval(() => {
-    const randomDate = remainingDates[Math.floor(Math.random() * remainingDates.length)];
-    suspenseText.textContent = "📅 " + randomDate;
+    suspenseText.textContent = "📅 " + remainingDates[selectedIndex];
   }, 150);
 
-  const randomSpin = Math.random() * 360 + 1800;
-  const duration = 4000;
+  const sliceDeg = 360 / remainingDates.length;
+
+  const targetDeg =
+    3600 + 270 - (selectedIndex * sliceDeg + sliceDeg / 2);
+
+  const duration = 4500;
   const startTime = performance.now();
 
   function animate(now) {
@@ -143,7 +152,7 @@ function cabutUndian() {
     const progress = Math.min(elapsed / duration, 1);
     const easeOut = 1 - Math.pow(1 - progress, 3);
 
-    angle = (randomSpin * easeOut * Math.PI) / 180;
+    angle = (targetDeg * easeOut * Math.PI) / 180;
     drawWheel();
 
     if (progress < 1) {
@@ -151,10 +160,7 @@ function cabutUndian() {
     } else {
       clearInterval(suspenseInterval);
 
-      const randomIndex = Math.floor(Math.random() * remainingDates.length);
-      const selectedDate = remainingDates[randomIndex];
-
-      remainingDates.splice(randomIndex, 1);
+      remainingDates.splice(selectedIndex, 1);
       selectedPlayers.push(playerName);
 
       results.push({
@@ -163,18 +169,21 @@ function cabutUndian() {
       });
 
       loading.classList.add("hidden");
+
       winnerName.textContent = playerName;
       winnerDate.textContent = "📅 " + selectedDate;
+
       winnerBox.classList.remove("hidden");
 
       playWinnerSound();
       createConfetti();
       updateResultList();
-      updateDropdown();
+      loadDropdown();
 
-      nameInput.selectedIndex = 0;
-      spinning = false;
+      nameInput.value = "";
       drawBtn.disabled = false;
+
+      drawWheel();
     }
   }
 
@@ -212,22 +221,11 @@ function updateResultList() {
   });
 }
 
-function updateDropdown() {
-  for (let i = 0; i < nameInput.options.length; i++) {
-    const option = nameInput.options[i];
-
-    if (selectedPlayers.includes(option.value)) {
-      option.disabled = true;
-      option.textContent = option.value + " ✅ SUDAH CABUT";
-    }
-  }
-}
-
 function createConfetti() {
   const confetti = document.getElementById("confetti");
   confetti.innerHTML = "";
 
-  for (let i = 0; i < 80; i++) {
+  for (let i = 0; i < 90; i++) {
     const span = document.createElement("span");
     span.style.left = Math.random() * 100 + "vw";
     span.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
@@ -239,10 +237,6 @@ function createConfetti() {
       span.remove();
     }, 3500);
   }
-}
-
-function shuffle(array) {
-  return array.sort(() => Math.random() - 0.5);
 }
 
 loadDropdown();
