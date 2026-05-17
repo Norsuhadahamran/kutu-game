@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game Cabut Undian Kutu</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="confetti" id="confetti"></div>
+
+  <div class="container">
+    <h1>🎲 Game Cabut Undian Kutu 🎲</h1>
+    <p class="subtitle">Pilih nama dan cabut tarikh secara rawak</p>
+
+    <select id="nameInput">
+      <option value="">-- PILIH NAMA --</option>
+    </select>
+
+    <div class="wheel-area">
+      <div class="pointer">▼</div>
+      <canvas id="wheel" width="360" height="360"></canvas>
+    </div>
+
+    <button id="drawBtn" onclick="cabutUndian()">CABUT UNDIAN</button>
+
+    <div class="loading hidden" id="loading">
+      🎡 Sedang memilih tarikh...
+      <div id="suspenseText"></div>
+    </div>
+
+    <div id="winnerBox" class="winner-box hidden">
+      <h2>🎉 TAHNIAH! 🎉</h2>
+      <p>Nama:</p>
+      <h3 id="winnerName"></h3>
+      <p>Tarikh yang diperoleh:</p>
+      <h3 id="winnerDate"></h3>
+    </div>
+
+    <h3 class="list-title">🏆 Result Board</h3>
+    <ul id="resultList"></ul>
+  </div>
+
+  <audio id="spinSound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+
+  <audio id="winSound" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
+
+  <audio id="clapSound" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
+
+  <audio id="crowdSound" src="https://assets.mixkit.co/active_storage/sfx/949/949-preview.mp3"></audio>
+
+  <script src="script.js"></script>
+</body>
+</html>
